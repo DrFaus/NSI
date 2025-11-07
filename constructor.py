@@ -7,13 +7,42 @@ carpeta = ''
 universo_discurso_entrada_01 = [0.0, 2.0]
 universo_discurso_entrada_02 = [0.0, 0.2]
 universo_discurso_salida = [-1.0, 1.0]
+referencia_entrada_01 = 1.13
+referencia_entrada_02 = 0.08
 cantidad_variables = 16
+vector_reglas = "[1.0d0, 1.0d0, 3.0d0, 3.0d0, 2.0d0, 1.0d0, 2.0d0, 3.0d0, 1.0d0]"
+osa = False
+reglas_discretas = False
 
-tamanio_poblacion = 30
-iteraciones = 100000
-pruebas = 100
+tamanio_poblacion = 40
+iteraciones = 10000
+pruebas = 10
 minimo_global_deseado = -1.0
 
+
+read_me = f'''
+entrenamiento = {entrenamiento}
+verificacion = {verificacion}
+validacion = {validacion}
+carpeta = {carpeta}
+universo_discurso_entrada_01 = {universo_discurso_entrada_01}
+universo_discurso_entrada_02 = {universo_discurso_entrada_02}
+universo_discurso_salida = {universo_discurso_salida}
+referencia_entrada_01 = {referencia_entrada_01}
+referencia_entrada_02 = {referencia_entrada_02}
+cantidad_variables = {cantidad_variables}
+vector_reglas = {vector_reglas}
+osa = {osa}
+reglas_discretas = {reglas_discretas}
+
+tamanio_poblacion = {tamanio_poblacion}
+iteraciones = {iteraciones}
+pruebas = {pruebas}
+minimo_global_deseado = {minimo_global_deseado}
+'''
+
+with open("read_me.txt", "w", encoding="utf-8") as f:
+    f.write(read_me)
 
 import pandas as pd
 
@@ -461,7 +490,11 @@ df_validacion = pd.read_csv(validacion)
 df_validacion.columns = ["x_1", "x_2", "respuesta"]
 numero_datos_validacion = df_validacion.shape[0]
 
-definicion_params = f'''
+if cantidad_variables == 16:
+    call_reglas = "call base_de_reglas(anint(x(1:9)), base)"
+    limites_reglas = """  limite_inferior(1:9) = 1.0d0
+  limite_superior(1:9) = 3.0d0"""
+    definicion_params = f'''
         params(1) = -1000000.0d0
         params(2) = {universo_discurso_entrada_01[0]}d0
         params(3) = params(2) + x(10) * ({universo_discurso_entrada_01[1]}d0 - params(2))
@@ -497,6 +530,129 @@ definicion_params = f'''
         params(27) = x(16) * ({universo_discurso_salida[1]}d0)
         params(28) = params(27)
 '''
+    guardado = f'''
+  write(10, '(A)') "x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9,x_10,x_11,x_12,x_13,x_14,x_15,x_16,Costo,Times"
+
+  do iteracion = 1, maxima_iteracion
+    !             1        2         3         4         5         6         7         8        9          10        11         12        13       14        15         16       17        18        19        20         21       22        23         24        25        26                              
+    write(10, '(F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7)') &
+    soluciones(iteracion, 1), soluciones(iteracion, 2), soluciones(iteracion, 3), soluciones(iteracion, 4), &
+    soluciones(iteracion, 5), soluciones(iteracion, 6), soluciones(iteracion, 7), soluciones(iteracion, 8), &
+    soluciones(iteracion, 9), soluciones(iteracion,10), soluciones(iteracion,11), soluciones(iteracion,12), &
+    soluciones(iteracion,13), soluciones(iteracion,14), soluciones(iteracion,15), soluciones(iteracion,16), &
+    soluciones(iteracion,17), soluciones(iteracion,18)
+  end do
+  close(10)
+'''
+
+if cantidad_variables == 14:
+    call_reglas = "call base_de_reglas(anint(x(1:9)), base)"
+    limites_reglas = """  limite_inferior(1:9) = 1.0d0
+  limite_superior(1:9) = 3.0d0"""
+    definicion_params = f'''
+        params(1) = -1000000.0d0
+        params(2) = {universo_discurso_entrada_01[0]}d0
+        params(3) = params(2) + x(10) * ({referencia_entrada_01}d0 - params(2))
+        params(4) = {referencia_entrada_01}d0
+
+        params(5) = params(3)
+        params(6) = params(4)
+        params(7) = params(6) + x(11) * ({universo_discurso_entrada_01[1]}d0 - params(6))
+
+        params(8) = params(6)
+        params(9) = params(7)
+        params(10) = {universo_discurso_entrada_01[1]}d0
+        params(11) = 1000000.0d0
+
+        params(12) = -1000000.0d0
+        params(13) = {universo_discurso_entrada_02[0]}d0
+        params(14) = params(13) + x(12) * ({referencia_entrada_02}d0 - params(13))
+        params(15) = {referencia_entrada_02}d0
+
+        params(16) = params(14)
+        params(17) = params(15)
+        params(18) = params(17) + x(13) * ({universo_discurso_entrada_02[1]}d0 - params(17))
+
+        params(19) = params(17)
+        params(20) = params(18)
+        params(21) = {universo_discurso_entrada_02[1]}d0
+        params(22) = 1000000.0d0
+        
+        params(23) = x(14) * ({universo_discurso_salida[0]}d0)
+        params(24) = params(23)
+        params(25) = 0.0d0
+        params(26) = 0.0d0
+        params(27) = x(14) * ({universo_discurso_salida[1]}d0)
+        params(28) = params(27)
+'''
+    guardado = f'''
+  write(10, '(A)') "x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9,x_10,x_11,x_12,x_13,x_14,Costo,Times"
+
+  do iteracion = 1, maxima_iteracion
+    !             1        2         3         4         5         6         7         8        9          10        11         12        13       14        15         16       17        18        19        20         21       22        23         24        25        26                              
+    write(10, '(F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7)') &
+    soluciones(iteracion, 1), soluciones(iteracion, 2), soluciones(iteracion, 3), soluciones(iteracion, 4), &
+    soluciones(iteracion, 5), soluciones(iteracion, 6), soluciones(iteracion, 7), soluciones(iteracion, 8), &
+    soluciones(iteracion, 9), soluciones(iteracion,10), soluciones(iteracion,11), soluciones(iteracion,12), &
+    soluciones(iteracion,13), soluciones(iteracion,14), soluciones(iteracion,15), soluciones(iteracion,16)
+  end do
+  close(10)
+'''
+if cantidad_variables == 7:
+    call_reglas = f"call base_de_reglas(anint({vector_reglas}), base)"
+    limites_reglas = ""
+    definicion_params = f'''
+        params(1) = -1000000.0d0
+        params(2) = {universo_discurso_entrada_01[0]}d0
+        params(3) = params(2) + x(1) * ({universo_discurso_entrada_01[1]}d0 - params(2))
+        params(4) = params(3) + x(2) * ({universo_discurso_entrada_01[1]}d0 - params(3))
+
+        params(5) = params(3)
+        params(6) = params(4)
+        params(7) = params(6) + x(3) * ({universo_discurso_entrada_01[1]}d0 - params(6))
+
+        params(8) = params(6)
+        params(9) = params(7)
+        params(10) = {universo_discurso_entrada_01[1]}d0
+        params(11) = 1000000.0d0
+
+        params(12) = -1000000.0d0
+        params(13) = {universo_discurso_entrada_02[0]}d0
+        params(14) = params(13) + x(4) * ({universo_discurso_entrada_02[1]}d0 - params(13))
+        params(15) = params(14) + x(5) * ({universo_discurso_entrada_02[1]}d0 - params(14))
+
+        params(16) = params(14)
+        params(17) = params(15)
+        params(18) = params(17) + x(6) * ({universo_discurso_entrada_02[1]}d0 - params(17))
+
+        params(19) = params(17)
+        params(20) = params(18)
+        params(21) = {universo_discurso_entrada_02[1]}d0
+        params(22) = 1000000.0d0
+        
+        params(23) = x(7) * ({universo_discurso_salida[0]}d0)
+        params(24) = params(23)
+        params(25) = 0.0d0
+        params(26) = 0.0d0
+        params(27) = x(7) * ({universo_discurso_salida[1]}d0)
+        params(28) = params(27)
+'''
+    guardado = f'''
+  write(10, '(A)') "x_1,x_2,x_3,x_4,x_5,x_6,x_7,Costo,Times"
+
+  do iteracion = 1, maxima_iteracion
+    !             1        2         3         4         5         6         7         8        9                                         
+    write(10, '(F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7)') &
+    soluciones(iteracion, 1), soluciones(iteracion, 2), soluciones(iteracion, 3), soluciones(iteracion, 4), &
+    soluciones(iteracion, 5), soluciones(iteracion, 6), soluciones(iteracion, 7), soluciones(iteracion, 8), &
+    soluciones(iteracion, 9)
+  end do
+  close(10)
+'''
+if not reglas_discretas:
+    call_reglas = call_reglas.replace('anint(', '').replace("))",")")
+
+
 
 tsukamoto = f'''
 module tsukamoto
@@ -518,12 +674,12 @@ contains !Todas las funciones y subrutinas
         suma_cuadrados = 0.0d0 
         suma_errores = 0.0d0
         promedio_respuesta = {float(df_entrenamiento.respuesta.mean())}d0
-        call base_de_reglas(anint(x(1:9)), base)
+        {call_reglas}
 
 {definicion_params}
 
         do i = 1, {numero_datos_entrenamiento}
-            prediccion_0 = x1(i) + fis_tsukamoto(base, params, x1(i), x2(i))
+            prediccion_0 = x1(i) * (1.0d0 - {float(osa)}d0) + fis_tsukamoto(base, params, x1(i), x2(i))
             suma_cuadrados = suma_cuadrados + (respuesta(i) - prediccion_0)**2
             suma_errores = suma_errores + (respuesta(i) - promedio_respuesta)**2
         end do
@@ -549,14 +705,14 @@ contains !Todas las funciones y subrutinas
         suma_errores = 0.0d0 
         promedio_respuesta = {float(df_verificacion.respuesta.mean())}d0
 
-        call base_de_reglas(anint(x(1:9)), base)
+        {call_reglas}
 
 {definicion_params}                                    
 
         prediccion_1 = x1(1)
 
         do i = 1, {numero_datos_verificacion}
-            prediccion_0 = prediccion_1 + fis_tsukamoto(base, params, prediccion_1, x2(i))
+            prediccion_0 = prediccion_1 * (1.0d0 - {float(osa)}d0) + fis_tsukamoto(base, params, prediccion_1, x2(i))
             prediccion(i) = prediccion_0
             suma_cuadrados = suma_cuadrados + (respuesta(i) - prediccion_0)**2
             suma_errores = suma_errores + (respuesta(i) - promedio_respuesta)**2
@@ -584,14 +740,14 @@ contains !Todas las funciones y subrutinas
         suma_errores = 0.0d0 
         promedio_respuesta = {float(df_verificacion.respuesta.mean())}d0
 
-        call base_de_reglas(anint(x(1:9)), base)
+        {call_reglas}
 
 {definicion_params}                                    
 
         prediccion_1 = x1(1)
 
         do i = 1, {numero_datos_verificacion}
-            prediccion_0 = prediccion_1 + fis_tsukamoto(base, params, prediccion_1, x2(i))
+            prediccion_0 = prediccion_1 * (1.0d0 - {float(osa)}d0) + fis_tsukamoto(base, params, prediccion_1, x2(i))
             prediccion(i) = prediccion_0
             suma_cuadrados = suma_cuadrados + (respuesta(i) - prediccion_0)**2
             suma_errores = suma_errores + (respuesta(i) - promedio_respuesta)**2
@@ -632,14 +788,14 @@ contains !Todas las funciones y subrutinas
         suma_errores = 0.0d0 
         promedio_respuesta = {float(df_validacion.respuesta.mean())}d0
 
-        call base_de_reglas(anint(x(1:9)), base)
+        {call_reglas}
 
 {definicion_params}
 
         prediccion_1 = x1(1)
 
         do i = 1, {numero_datos_validacion}
-            prediccion_0 = prediccion_1 + fis_tsukamoto(base, params, prediccion_1, x2(i))
+            prediccion_0 = prediccion_1 * (1.0d0 - {float(osa)}d0) + fis_tsukamoto(base, params, prediccion_1, x2(i))
             prediccion(i) = prediccion_0
             suma_cuadrados = suma_cuadrados + (respuesta(i) - prediccion_0)**2
             suma_errores = suma_errores + (respuesta(i) - promedio_respuesta)**2
@@ -797,8 +953,7 @@ program OptimizationDriver
   limite_inferior = 0.0d0
   limite_superior = 1.0d0
 
-  limite_inferior(1:9) = 1.0d0
-  limite_superior(1:9) = 3.0d0
+{limites_reglas}
 
   maxima_iteracion = {pruebas}
 
@@ -826,18 +981,8 @@ program OptimizationDriver
   ! Guarda los resultados en un archivo CSV
   open(unit=10, file=trim(nombre_archivo), status="replace")
   ! Escribe encabezados en el archivo CSV
-  write(10, '(A)') "x_1,x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9,x_10,x_11,x_12,x_13,x_14,x_15,x_16,Costo,Times"
 
-  do iteracion = 1, maxima_iteracion
-    !             1        2         3         4         5         6         7         8        9          10        11         12        13       14        15         16       17        18        19        20         21       22        23         24        25        26                              
-    write(10, '(F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7,",",F15.7)') &
-    soluciones(iteracion, 1), soluciones(iteracion, 2), soluciones(iteracion, 3), soluciones(iteracion, 4), &
-    soluciones(iteracion, 5), soluciones(iteracion, 6), soluciones(iteracion, 7), soluciones(iteracion, 8), &
-    soluciones(iteracion, 9), soluciones(iteracion,10), soluciones(iteracion,11), soluciones(iteracion,12), &
-    soluciones(iteracion,13), soluciones(iteracion,14), soluciones(iteracion,15), soluciones(iteracion,16), &
-    soluciones(iteracion,17), soluciones(iteracion,18)
-  end do
-  close(10)
+{guardado}
 
   print *, "Resultados guardados en: ", trim(nombre_archivo)
 
@@ -852,7 +997,7 @@ import pandas as pd
 
 df = pd.read_csv("resultados.csv")
 numero_resultados = df.shape[0]
-matriz = [f'    x({i},:) = {list(df.iloc[i-1,0:16])}' for i in range(1,numero_resultados+1)]
+matriz = [f'    x({i},:) = {list(df.iloc[i-1,0:"""+str(cantidad_variables)+"""])}' for i in range(1,numero_resultados+1)]
 
 completo = []
 completo.append(f'''
@@ -861,7 +1006,7 @@ program verificaciones
     use tsukamoto
     implicit none
 
-    double precision, dimension({numero_resultados},16) :: x 
+    double precision, dimension({numero_resultados},"""+str(cantidad_variables)+""") :: x 
     double precision, dimension({numero_resultados}) :: rs
     character(len=100) :: nombre_archivo
     integer :: i
@@ -912,7 +1057,7 @@ with open("unir_resultados.py", "w", encoding="utf-8") as f:
 datos_vv = '''
 import pandas as pd
 df = pd.read_csv("''' + carpeta + "resultados.csv" + '''")
-x = list(df.iloc[-1,0:16])
+x = list(df.iloc[-1,0:'''+str(cantidad_variables)+'''])
 verificaciones = f"""
 program verificaciones
 ! gfortran -c tsukamoto.f90
@@ -922,7 +1067,7 @@ program verificaciones
     use tsukamoto
     implicit none
 
-    double precision, dimension(16) :: x 
+    double precision, dimension('''+str(cantidad_variables)+''') :: x 
     double precision :: coeficiente_correlacion
 
     x = {x}
